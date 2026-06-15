@@ -1,0 +1,80 @@
+/* ---- RESET & BASE ---- */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
+    background: #0a0a0f;
+    color: #e8e8ed;
+    -webkit-font-smoothing: antialiased;
+}
+
+a { text-decoration: none; color: inherit; }
+
+/* ---- LAYOUT ---- */
+.app { min-height: 100vh; display: flex; flex-direction: column; }
+.main-content { flex: 1; padding: 2rem 2.5rem; max-width: 1400px; margin: 0 auto; width: 100%; }
+
+/* ---- CARDS ---- */
+.card {
+    background: #13131a;
+    border: 1px solid #1e1e2e;
+    border-radius: 16px;
+    padding: 1.5rem;
+}
+
+/* ---- BUTTONS ---- */
+.btn {
+    padding: 10px 20px;
+    border-radius: 980px;
+    border: none;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+}
+.btn-primary { background: #0071e3; color: white; }
+.btn-primary:hover { background: #0077ed; }
+.btn-success { background: #1a9e3f; color: white; }
+.btn-success:hover { background: #1db348; }
+.btn-danger { background: #d93025; color: white; }
+.btn-danger:hover { background: #e53935; }
+.btn-outline {
+    background: transparent;
+    color: #e8e8ed;
+    border: 1px solid #1e1e2e;
+}
+.btn-outline:hover { background: #1e1e2e; }
+
+/* ---- BADGES ---- */
+.badge-up { color: #1a9e3f; font-weight: 600; }
+.badge-down { color: #d93025; font-weight: 600; }
+
+/* ---- INPUTS ---- */
+input, select {
+    background: #1e1e2e;
+    border: 1px solid #2e2e3e;
+    border-radius: 10px;
+    color: #e8e8ed;
+    padding: 10px 14px;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    transition: border 0.2s;
+}
+input:focus, select:focus { border-color: #0071e3; }
+
+/* ---- LOADING ---- */
+.loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem;
+    color: #6e6e73;
+    font-size: 15px;
+}
+
+/* ---- RESPONSIVE ---- */
+@media (max-width: 768px) {
+    .main-content { padding: 1rem 1.25rem; }
+}
