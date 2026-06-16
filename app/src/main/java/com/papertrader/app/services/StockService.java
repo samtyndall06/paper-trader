@@ -135,13 +135,20 @@ public class StockService {
 
     // Get stocks by country
     public List<Map<String, Object>> getStocksByCountry(String countryCode) {
-        if (countryCode == null || countryCode.equals("GLOBAL")) {
-            return getGlobalStocks();
+        String code = (countryCode == null || countryCode.equals("GLOBAL"))
+                ? "GLOBAL" : countryCode.toUpperCase();
+
+        // Try real API first
+        List<Map<String, Object>> realData = code.equals("GLOBAL")
+                ? getGlobalStocks()
+                : getMultipleStocks(STOCKS_BY_COUNTRY.getOrDefault(code, new ArrayList<>()));
+
+        // Fall back to mock data if API returns nothing
+        if (realData.isEmpty()) {
+            System.out.println("API limit reached - using mock data for: " + code);
+            return getMockStocks(code);
         }
-        List<String> symbols = STOCKS_BY_COUNTRY.getOrDefault(
-            countryCode.toUpperCase(), new ArrayList<>()
-        );
-        return getMultipleStocks(symbols);
+        return realData;
     }
 
     // Get global mix — 1 stock per country to stay within rate limits
@@ -161,5 +168,126 @@ public class StockService {
 
     public Map<String, Object> searchStock(String symbol) {
         return getStockInfo(symbol.toUpperCase());
+    }
+    
+    // Mock data for development when API limit is reached
+    private List<Map<String, Object>> getMockStocks(String country) {
+        List<Map<String, Object>> stocks = new ArrayList<>();
+
+        Map<String, List<Map<String, Object>>> mockData = new HashMap<>();
+
+        mockData.put("US", Arrays.asList(
+                createMock("AAPL", "Apple Inc.", 189.50, 1.25, 0.66, "USD"),
+                createMock("MSFT", "Microsoft Corp.", 415.20, -2.30, -0.55, "USD"),
+                createMock("GOOGL", "Alphabet Inc.", 175.80, 3.10, 1.79, "USD"),
+                createMock("TSLA", "Tesla Inc.", 245.60, -5.40, -2.15, "USD"),
+                createMock("NVDA", "NVIDIA Corp.", 875.30, 12.50, 1.45, "USD")
+        ));
+        mockData.put("NZ", Arrays.asList(
+                createMock("AIR.NZ", "Air New Zealand", 0.68, 0.01, 1.49, "NZD"),
+                createMock("FPH.NZ", "Fisher & Paykel", 22.50, -0.30, -1.32, "NZD"),
+                createMock("ATM.NZ", "A2 Milk Company", 6.85, 0.15, 2.24, "NZD"),
+                createMock("SPK.NZ", "Spark NZ", 3.12, -0.05, -1.58, "NZD"),
+                createMock("MFT.NZ", "Mainfreight", 68.40, 0.90, 1.33, "NZD")
+        ));
+        mockData.put("AU", Arrays.asList(
+                createMock("BHP.AX", "BHP Group", 45.20, 0.80, 1.80, "AUD"),
+                createMock("CBA.AX", "Commonwealth Bank", 118.50, -1.20, -1.00, "AUD"),
+                createMock("ANZ.AX", "ANZ Banking Group", 28.90, 0.45, 1.58, "AUD"),
+                createMock("WBC.AX", "Westpac Banking", 26.75, -0.25, -0.93, "AUD"),
+                createMock("NAB.AX", "National Aust. Bank", 33.40, 0.60, 1.83, "AUD")
+        ));
+        mockData.put("UK", Arrays.asList(
+                createMock("SHEL.L", "Shell PLC", 2456.00, 12.00, 0.49, "GBP"),
+                createMock("AZN.L", "AstraZeneca", 12850.00, -50.00, -0.39, "GBP"),
+                createMock("HSBA.L", "HSBC Holdings", 745.60, 8.40, 1.14, "GBP"),
+                createMock("BP.L", "BP PLC", 425.30, -3.20, -0.75, "GBP"),
+                createMock("GSK.L", "GSK PLC", 1685.00, 15.00, 0.90, "GBP")
+        ));
+        mockData.put("JP", Arrays.asList(
+                createMock("7203.T", "Toyota Motor", 3250.00, 45.00, 1.40, "JPY"),
+                createMock("6758.T", "Sony Group", 12500.00, -150.00, -1.19, "JPY"),
+                createMock("9984.T", "SoftBank Group", 8750.00, 120.00, 1.39, "JPY"),
+                createMock("7267.T", "Honda Motor", 1456.00, 23.00, 1.61, "JPY"),
+                createMock("6861.T", "Keyence Corp.", 65800.00, -800.00, -1.20, "JPY")
+        ));
+        mockData.put("HK", Arrays.asList(
+                createMock("0700.HK", "Tencent Holdings", 385.60, 4.20, 1.10, "HKD"),
+                createMock("0941.HK", "China Mobile", 68.45, -0.55, -0.80, "HKD"),
+                createMock("0005.HK", "HSBC Holdings HK", 72.30, 0.85, 1.19, "HKD"),
+                createMock("1299.HK", "AIA Group", 58.90, -0.40, -0.67, "HKD"),
+                createMock("0388.HK", "HK Exchanges", 285.40, 3.60, 1.28, "HKD")
+        ));
+
+        if (country.equals("GLOBAL")) {
+            for (List<Map<String, Object>> countryStocks : mockData.values()) {
+                stocks.add(countryStocks.get(0));
+            }
+        } else {
+            stocks = mockData.getOrDefault(country, new ArrayList<>());
+        }
+        return stocks;
+    }
+
+    private Map<String, Object> createMock(String symbol, String name, double price,
+            double change, double changePercent, String currency) {
+        Map<String, Object> stock = new HashMap<>();
+        stock.put("symbol", symbol);
+        stock.put("name", name);
+        stock.put("price", price);
+        stock.put("change", change);
+        stock.put("changePercent", changePercent);
+        stock.put("currency", currency);
+        stock.put("volume", (long) (Math.random() * 10000000));
+        return stock;
+    }
+    
+    public Map<String, Object> getMockStockBySymbol(String symbol) {
+        // Search through all mock data for the symbol
+        for (List<Map<String, Object>> countryStocks : getMockStocks("GLOBAL").stream()
+                .map(s -> List.of(s)).collect(java.util.stream.Collectors.toList())) {
+            for (Map<String, Object> stock : countryStocks) {
+                if (stock.get("symbol").equals(symbol.toUpperCase())) {
+                    return stock;
+                }
+            }
+        }
+        // Build from all country mock data
+        List<String> allCountries = Arrays.asList("US", "NZ", "AU", "UK", "JP", "HK");
+        for (String country : allCountries) {
+            for (Map<String, Object> stock : getMockStocks(country)) {
+                if (stock.get("symbol").equals(symbol.toUpperCase())) {
+                    return stock;
+                }
+            }
+        }
+        return null;
+    }
+    
+    public List<Map<String, Object>> getMockHistoricalData(String symbol) {
+        List<Map<String, Object>> history = new ArrayList<>();
+        Random random = new Random(symbol.hashCode());
+
+        // Get current price from mock data
+        Map<String, Object> stock = getMockStockBySymbol(symbol);
+        double basePrice = stock != null ? (double) stock.get("price") : 100.0;
+
+        // Generate 30 days of historical data
+        double price = basePrice * 0.85;
+        for (int i = 29; i >= 0; i--) {
+            Map<String, Object> day = new HashMap<>();
+            // Random walk up toward current price
+            price = price + (random.nextGaussian() * basePrice * 0.02)
+                    + (basePrice - price) * 0.05;
+
+            java.time.LocalDate date = java.time.LocalDate.now().minusDays(i);
+            day.put("date", date.toString());
+            day.put("price", Math.round(price * 100.0) / 100.0);
+            day.put("open", Math.round((price * 0.99) * 100.0) / 100.0);
+            day.put("high", Math.round((price * 1.02) * 100.0) / 100.0);
+            day.put("low", Math.round((price * 0.98) * 100.0) / 100.0);
+            history.add(day);
+        }
+        return history;
     }
 }

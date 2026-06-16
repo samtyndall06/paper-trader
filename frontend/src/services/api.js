@@ -45,3 +45,6 @@ export const getPortfolioValue = () =>
     api.get('/portfolio/value');
 
 export default api;
+
+export const getStockHistory = (symbol) =>
+    api.get(`/stocks/${symbol}/history`);

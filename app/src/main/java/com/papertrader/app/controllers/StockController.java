@@ -27,9 +27,13 @@ public class StockController {
     // GET /api/stocks/AAPL
     @GetMapping("/{symbol}")
     public Map<String, Object> getStock(@PathVariable String symbol) {
-        return stockService.getStockInfo(symbol);
+        Map<String, Object> stock = stockService.getStockInfo(symbol);
+        if (stock == null) {
+            // Fall back to mock data
+            stock = stockService.getMockStockBySymbol(symbol);
+        }
+        return stock;
     }
-
     // Get list of available countries
     // GET /api/stocks/countries
     @GetMapping("/countries")
@@ -42,5 +46,10 @@ public class StockController {
     @GetMapping("/search")
     public Map<String, Object> searchStock(@RequestParam String symbol) {
         return stockService.searchStock(symbol);
+    }
+    
+    @GetMapping("/{symbol}/history")
+    public List<Map<String, Object>> getStockHistory(@PathVariable String symbol) {
+        return stockService.getMockHistoricalData(symbol);
     }
 }
