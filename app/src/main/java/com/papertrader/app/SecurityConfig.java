@@ -50,25 +50,24 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .authenticationProvider(authenticationProvider())
-            .authorizeHttpRequests(auth -> auth
-                // Allow all API endpoints publicly for now
+                .authenticationProvider(authenticationProvider())
+                .headers(headers -> headers.disable())
+                .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/**").permitAll()
                 .anyRequest().authenticated()
-            )
-            .csrf(csrf -> csrf
-                // Disable CSRF for REST API endpoints
+                )
+                .csrf(csrf -> csrf
                 .ignoringRequestMatchers("/api/**")
-            )
-            .formLogin(form -> form
+                )
+                .formLogin(form -> form
                 .loginPage("/login")
                 .defaultSuccessUrl("/", true)
                 .permitAll()
-            )
-            .logout(logout -> logout
+                )
+                .logout(logout -> logout
                 .logoutSuccessUrl("/")
                 .permitAll()
-            );
+                );
 
         return http.build();
     }

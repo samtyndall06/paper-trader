@@ -1,0 +1,66 @@
+.stock-card {
+    background: #13131a;
+    border: 1px solid #1e1e2e;
+    border-radius: 16px;
+    padding: 1.25rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.stock-card:hover {
+    border-color: #0071e3;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(0, 113, 227, 0.15);
+}
+.stock-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+}
+.stock-symbol {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+.stock-change {
+    font-size: 13px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 980px;
+}
+.stock-change.up { background: rgba(26, 158, 63, 0.15); color: #1a9e3f; }
+.stock-change.down { background: rgba(217, 48, 37, 0.15); color: #d93025; }
+.stock-name {
+    font-size: 13px;
+    color: #6e6e73;
+    margin-bottom: 0.75rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.stock-price {
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 0.75rem;
+}
+.stock-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.stock-change-amount { font-size: 13px; }
+.stock-change-amount.up { color: #1a9e3f; }
+.stock-change-amount.down { color: #d93025; }
+.btn-trade {
+    background: none;
+    border: 1px solid #1e1e2e;
+    border-radius: 980px;
+    color: #6e6e73;
+    font-size: 12px;
+    padding: 4px 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+}
+.btn-trade:hover { border-color: #0071e3; color: #0071e3; }

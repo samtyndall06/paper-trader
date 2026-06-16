@@ -1,51 +1,45 @@
 package com.papertrader.app.services;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import yahoofinance.YahooFinance;
-import yahoofinance.Stock;
-import java.io.IOException;
+import org.springframework.web.client.RestTemplate;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.math.BigDecimal;
 import java.util.*;
 
 @Service
 public class StockService {
 
+    @Value("${alpha.vantage.key}")
+    private String apiKey;
+
+    private final RestTemplate restTemplate = new RestTemplate();
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
     // Country stock lists
     private static final Map<String, List<String>> STOCKS_BY_COUNTRY = new LinkedHashMap<>();
-
     static {
         STOCKS_BY_COUNTRY.put("US", Arrays.asList(
-            "AAPL", "MSFT", "GOOGL", "AMZN", "TSLA",
-            "NVDA", "META", "NFLX", "AMD", "JPM"
+            "AAPL", "MSFT", "GOOGL", "AMZN", "TSLA", "NVDA", "META", "NFLX", "AMD", "JPM"
         ));
         STOCKS_BY_COUNTRY.put("NZ", Arrays.asList(
-            "AIR.NZ", "FPH.NZ", "ATM.NZ", "SPK.NZ",
-            "MFT.NZ", "WBC.NZ", "ANZ.NZ", "CEN.NZ",
-            "MEL.NZ", "SKC.NZ"
+            "AIR.NZ", "FPH.NZ", "ATM.NZ", "SPK.NZ", "MFT.NZ"
         ));
         STOCKS_BY_COUNTRY.put("AU", Arrays.asList(
-            "BHP.AX", "CBA.AX", "ANZ.AX", "WBC.AX",
-            "NAB.AX", "CSL.AX", "WES.AX", "MQG.AX",
-            "RIO.AX", "TLS.AX"
+            "BHP.AX", "CBA.AX", "ANZ.AX", "WBC.AX", "NAB.AX"
         ));
         STOCKS_BY_COUNTRY.put("UK", Arrays.asList(
-            "SHEL.L", "AZN.L", "HSBA.L", "BP.L",
-            "GSK.L", "ULVR.L", "RIO.L", "LLOY.L",
-            "VOD.L", "BARC.L"
+            "SHEL.L", "AZN.L", "HSBA.L", "BP.L", "GSK.L"
         ));
         STOCKS_BY_COUNTRY.put("JP", Arrays.asList(
-            "7203.T", "6758.T", "9984.T", "7267.T",
-            "6861.T", "9432.T", "8306.T", "6954.T",
-            "4063.T", "9433.T"
+            "7203.T", "6758.T", "9984.T", "7267.T", "6861.T"
         ));
         STOCKS_BY_COUNTRY.put("HK", Arrays.asList(
-            "0700.HK", "0941.HK", "0005.HK", "1299.HK",
-            "0388.HK", "2318.HK", "0939.HK", "1398.HK",
-            "0883.HK", "2628.HK"
+            "0700.HK", "0941.HK", "0005.HK", "1299.HK", "0388.HK"
         ));
     }
 
-    // Country display names
     private static final Map<String, String> COUNTRY_NAMES = new LinkedHashMap<>();
     static {
         COUNTRY_NAMES.put("GLOBAL", "🌍 Global");
@@ -57,56 +51,89 @@ public class StockService {
         COUNTRY_NAMES.put("HK", "🇭🇰 Hong Kong");
     }
 
-    // Get current price of a stock
+    // Get current price using Alpha Vantage
     public BigDecimal getCurrentPrice(String symbol) {
         try {
-            Stock stock = YahooFinance.get(symbol);
-            if (stock == null || stock.getQuote() == null) {
-                return BigDecimal.ZERO;
+            String url = "https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol="
+                + symbol + "&apikey=" + apiKey;
+            String response = restTemplate.getForObject(url, String.class);
+            JsonNode root = objectMapper.readTree(response);
+            JsonNode quote = root.path("Global Quote");
+            if (quote.has("05. price")) {
+                return new BigDecimal(quote.get("05. price").asText());
             }
-            return stock.getQuote().getPrice();
-        } catch (IOException e) {
-            return BigDecimal.ZERO;
+        } catch (Exception e) {
+            System.out.println("Error fetching price for " + symbol + ": " + e.getMessage());
         }
+        return BigDecimal.ZERO;
     }
 
     // Get full stock info
     public Map<String, Object> getStockInfo(String symbol) {
         Map<String, Object> info = new HashMap<>();
         try {
-            Stock stock = YahooFinance.get(symbol);
-            if (stock == null) {
-                info.put("error", "Stock not found");
-                return info;
+            System.out.println("Fetching: " + symbol);
+            String url = "https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol="
+                + symbol + "&apikey=" + apiKey;
+            String response = restTemplate.getForObject(url, String.class);
+            JsonNode root = objectMapper.readTree(response);
+            JsonNode quote = root.path("Global Quote");
+
+            if (!quote.has("05. price") || quote.get("05. price").asText().isEmpty()) {
+                System.out.println("No data for: " + symbol);
+                return null;
             }
+
+            double price = Double.parseDouble(quote.get("05. price").asText());
+            double change = Double.parseDouble(quote.get("09. change").asText());
+            double changePercent = Double.parseDouble(
+                quote.get("10. change percent").asText().replace("%", "")
+            );
+            long volume = Long.parseLong(quote.get("06. volume").asText());
+
             info.put("symbol", symbol.toUpperCase());
-            info.put("name", stock.getName());
-            info.put("price", stock.getQuote().getPrice());
-            info.put("change", stock.getQuote().getChange());
-            info.put("changePercent", stock.getQuote().getChangeInPercent());
-            info.put("volume", stock.getQuote().getVolume());
-            info.put("yearHigh", stock.getQuote().getYearHigh());
-            info.put("yearLow", stock.getQuote().getYearLow());
-            info.put("currency", stock.getCurrency());
-        } catch (IOException e) {
-            info.put("error", "Failed to fetch stock data");
+            info.put("name", symbol);
+            info.put("price", price);
+            info.put("change", change);
+            info.put("changePercent", changePercent);
+            info.put("volume", volume);
+            info.put("currency", getCurrency(symbol));
+
+            System.out.println("Got " + symbol + " at " + price);
+
+        } catch (Exception e) {
+            System.out.println("Error for " + symbol + ": " + e.getMessage());
+            return null;
         }
         return info;
     }
 
-    // Get multiple stocks at once
+    // Determine currency from symbol suffix
+    private String getCurrency(String symbol) {
+        if (symbol.endsWith(".NZ")) return "NZD";
+        if (symbol.endsWith(".AX")) return "AUD";
+        if (symbol.endsWith(".L")) return "GBP";
+        if (symbol.endsWith(".T")) return "JPY";
+        if (symbol.endsWith(".HK")) return "HKD";
+        return "USD";
+    }
+
+    // Get multiple stocks
     public List<Map<String, Object>> getMultipleStocks(List<String> symbols) {
         List<Map<String, Object>> stocks = new ArrayList<>();
         for (String symbol : symbols) {
             Map<String, Object> info = getStockInfo(symbol);
-            if (!info.containsKey("error")) {
+            if (info != null) {
                 stocks.add(info);
             }
+            // Alpha Vantage free tier allows 25 requests/day and 5/minute
+            // Add a small delay between requests
+            try { Thread.sleep(1000); } catch (InterruptedException e) { }
         }
         return stocks;
     }
 
-    // Get stocks by country code
+    // Get stocks by country
     public List<Map<String, Object>> getStocksByCountry(String countryCode) {
         if (countryCode == null || countryCode.equals("GLOBAL")) {
             return getGlobalStocks();
@@ -117,22 +144,21 @@ public class StockService {
         return getMultipleStocks(symbols);
     }
 
-    // Get a mix of stocks from all countries
+    // Get global mix — 1 stock per country to stay within rate limits
     public List<Map<String, Object>> getGlobalStocks() {
         List<String> global = new ArrayList<>();
-        // Take top 2 from each country for a global mix
         for (List<String> countryStocks : STOCKS_BY_COUNTRY.values()) {
-            global.addAll(countryStocks.subList(0, Math.min(2, countryStocks.size())));
+            if (!countryStocks.isEmpty()) {
+                global.add(countryStocks.get(0));
+            }
         }
         return getMultipleStocks(global);
     }
 
-    // Get available countries for the frontend
     public Map<String, String> getAvailableCountries() {
         return COUNTRY_NAMES;
     }
 
-    // Search for a stock by symbol
     public Map<String, Object> searchStock(String symbol) {
         return getStockInfo(symbol.toUpperCase());
     }
