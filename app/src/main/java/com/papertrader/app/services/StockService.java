@@ -55,15 +55,21 @@ public class StockService {
     public BigDecimal getCurrentPrice(String symbol) {
         try {
             String url = "https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol="
-                + symbol + "&apikey=" + apiKey;
+                    + symbol + "&apikey=" + apiKey;
             String response = restTemplate.getForObject(url, String.class);
             JsonNode root = objectMapper.readTree(response);
             JsonNode quote = root.path("Global Quote");
-            if (quote.has("05. price")) {
+            if (quote.has("05. price") && !quote.get("05. price").asText().isEmpty()) {
                 return new BigDecimal(quote.get("05. price").asText());
             }
         } catch (Exception e) {
             System.out.println("Error fetching price for " + symbol + ": " + e.getMessage());
+        }
+
+        // Fall back to mock price if API fails
+        Map<String, Object> mockStock = getMockStockBySymbol(symbol);
+        if (mockStock != null) {
+            return BigDecimal.valueOf((double) mockStock.get("price"));
         }
         return BigDecimal.ZERO;
     }
