@@ -42,13 +42,13 @@ public class StockService {
 
     private static final Map<String, String> COUNTRY_NAMES = new LinkedHashMap<>();
     static {
-        COUNTRY_NAMES.put("GLOBAL", "🌍 Global");
-        COUNTRY_NAMES.put("US", "🇺🇸 United States");
-        COUNTRY_NAMES.put("NZ", "🇳🇿 New Zealand");
-        COUNTRY_NAMES.put("AU", "🇦🇺 Australia");
-        COUNTRY_NAMES.put("UK", "🇬🇧 United Kingdom");
-        COUNTRY_NAMES.put("JP", "🇯🇵 Japan");
-        COUNTRY_NAMES.put("HK", "🇭🇰 Hong Kong");
+        COUNTRY_NAMES.put("GLOBAL", "Global");
+        COUNTRY_NAMES.put("US", "United States");
+        COUNTRY_NAMES.put("NZ", "New Zealand");
+        COUNTRY_NAMES.put("AU", "Australia");
+        COUNTRY_NAMES.put("UK", "United Kingdom");
+        COUNTRY_NAMES.put("JP", "Japan");
+        COUNTRY_NAMES.put("HK", "Hong Kong");
     }
 
     // Get current price using Alpha Vantage
