@@ -78,3 +78,12 @@ input:focus, select:focus { border-color: #0071e3; }
 @media (max-width: 768px) {
     .main-content { padding: 1rem 1.25rem; }
 }
+
+/* ---- RESPONSIVE ---- */
+@media (max-width: 768px) {
+    .main-content { padding: 1.25rem; }
+}
+
+@media (max-width: 480px) {
+    .main-content { padding: 1rem; }
+}
