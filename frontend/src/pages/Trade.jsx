@@ -1,17 +1,20 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getStock } from '../services/api';
-import './Trade.css';
+import { getStock, buyStock, sellStock } from '../services/api';
+import { useAuth } from '../context/AuthContext';
 import StockChart from '../components/StockChart';
+import './Trade.css';
 
 function Trade() {
     const { symbol } = useParams();
     const navigate = useNavigate();
+    const { user, login } = useAuth();
     const [stock, setStock] = useState(null);
     const [loading, setLoading] = useState(true);
     const [shares, setShares] = useState(1);
     const [tradeType, setTradeType] = useState('BUY');
     const [message, setMessage] = useState(null);
+    const [submitting, setSubmitting] = useState(false);
 
     useEffect(() => {
         getStock(symbol)
@@ -28,13 +31,34 @@ function Trade() {
     const total = stock ? (stock.price * shares).toFixed(2) : 0;
     const isUp = stock?.changePercent >= 0;
 
-    const handleTrade = () => {
-        // We'll wire this to the backend later
-        setMessage({
-            type: tradeType === 'BUY' ? 'success' : 'danger',
-            text: `${tradeType} order placed: ${shares} shares of ${symbol} at $${stock.price.toFixed(2)}`
-        });
-        setTimeout(() => setMessage(null), 3000);
+    const handleTrade = async () => {
+        if (!user) {
+            navigate('/login');
+            return;
+        }
+
+        setSubmitting(true);
+        setMessage(null);
+
+        try {
+            const action = tradeType === 'BUY' ? buyStock : sellStock;
+            const res = await action(user.email, symbol, shares);
+
+            setMessage({
+                type: 'success',
+                text: res.data.message
+            });
+
+            // Update the user's balance in context
+            login({ ...user, balance: res.data.newBalance });
+
+        } catch (err) {
+            setMessage({
+                type: 'danger',
+                text: err.response?.data?.error || 'Trade failed'
+            });
+        }
+        setSubmitting(false);
     };
 
     if (loading) return <div className="loading">Loading stock data...</div>;
@@ -43,12 +67,10 @@ function Trade() {
     return (
         <div className="trade-page">
 
-            {/* BACK BUTTON */}
             <button className="btn btn-outline back-btn" onClick={() => navigate('/')}>
                 ← Back
             </button>
 
-            {/* STOCK HEADER */}
             <div className="trade-header card">
                 <div className="trade-header-left">
                     <div className="trade-symbol">{stock.symbol}</div>
@@ -65,13 +87,10 @@ function Trade() {
                 </div>
             </div>
 
-            {/* CHART */}
             <StockChart symbol={symbol} />
 
-            {/* CONTENT */}
             <div className="trade-content">
 
-                {/* STOCK STATS */}
                 <div className="stock-stats card">
                     <h2>Stock Details</h2>
                     <div className="stats-grid">
@@ -99,26 +118,17 @@ function Trade() {
                                 {stock.volume?.toLocaleString()}
                             </span>
                         </div>
-                        <div className="stat-item">
-                            <span className="stat-label">Currency</span>
-                            <span className="stat-value">{stock.currency}</span>
-                        </div>
-                        <div className="stat-item">
-                            <span className="stat-label">Market</span>
-                            <span className="stat-value">
-                                {symbol.includes('.NZ') ? 'NZX' :
-                                 symbol.includes('.AX') ? 'ASX' :
-                                 symbol.includes('.L') ? 'LSE' :
-                                 symbol.includes('.T') ? 'TSE' :
-                                 symbol.includes('.HK') ? 'HKEX' : 'NASDAQ/NYSE'}
-                            </span>
-                        </div>
                     </div>
                 </div>
 
-                {/* TRADE FORM */}
                 <div className="trade-form card">
                     <h2>Place Order</h2>
+
+                    {!user && (
+                        <div className="trade-message danger">
+                            Please login to start trading
+                        </div>
+                    )}
 
                     {message && (
                         <div className={`trade-message ${message.type}`}>
@@ -126,7 +136,6 @@ function Trade() {
                         </div>
                     )}
 
-                    {/* BUY / SELL toggle */}
                     <div className="trade-toggle">
                         <button
                             className={`toggle-btn ${tradeType === 'BUY' ? 'active-buy' : ''}`}
@@ -170,8 +179,11 @@ function Trade() {
                     <button
                         className={`btn trade-btn ${tradeType === 'BUY' ? 'btn-success' : 'btn-danger'}`}
                         onClick={handleTrade}
+                        disabled={submitting}
                     >
-                        {tradeType === 'BUY' ? '▲ Buy' : '▼ Sell'} {shares} Share{shares > 1 ? 's' : ''}
+                        {submitting ? 'Processing...' :
+                            `${tradeType === 'BUY' ? '▲ Buy' : '▼ Sell'} ${shares} Share${shares > 1 ? 's' : ''}`
+                        }
                     </button>
 
                     <p className="trade-note">

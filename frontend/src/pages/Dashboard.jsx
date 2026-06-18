@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { getStocks, getCountries } from '../services/api';
 import StockCard from '../components/StockCard';
 import './Dashboard.css';
+import AiSuggestions from '../components/AiSuggestions';
 
 function Dashboard() {
     const [stocks, setStocks] = useState([]);
@@ -76,6 +77,9 @@ function Dashboard() {
                     </button>
                 ))}
             </div>
+            
+            {/* AI SUGGESTIONS */}
+            <AiSuggestions country={selectedCountry} />
 
             {/* STOCK GRID */}
             {loading ? (

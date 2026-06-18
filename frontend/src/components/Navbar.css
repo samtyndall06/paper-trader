@@ -26,3 +26,13 @@
 }
 .nav-link:hover, .nav-link.active { color: #e8e8ed; }
 .nav-actions { display: flex; gap: 0.75rem; }
+
+.nav-balance {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1a9e3f;
+}
+.nav-username {
+    font-size: 14px;
+    color: #6e6e73;
+}

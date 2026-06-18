@@ -28,23 +28,25 @@ export const login = (email, password) =>
     api.post('/auth/login', { email, password });
 
 // ---- TRADE API CALLS ----
-export const buyStock = (symbol, shares) =>
-    api.post('/trades/buy', { symbol, shares });
+export const buyStock = (email, symbol, shares) =>
+    api.post('/trades/buy', { email, symbol, shares });
 
-export const sellStock = (symbol, shares) =>
-    api.post('/trades/sell', { symbol, shares });
+export const sellStock = (email, symbol, shares) =>
+    api.post('/trades/sell', { email, symbol, shares });
 
-export const getTradeHistory = () =>
-    api.get('/trades/history');
+export const getTradeHistory = (email) =>
+    api.get(`/trades/history?email=${email}`);
 
-// ---- PORTFOLIO API CALLS ----
-export const getPortfolio = () =>
-    api.get('/portfolio');
+export const getPortfolio = (email) =>
+    api.get(`/portfolio?email=${email}`);
 
-export const getPortfolioValue = () =>
-    api.get('/portfolio/value');
+export const getPortfolioValue = (email) =>
+    api.get(`/portfolio/value?email=${email}`);
 
 export default api;
 
 export const getStockHistory = (symbol) =>
     api.get(`/stocks/${symbol}/history`);
+
+export const getLeaderboard = () =>
+    api.get('/portfolio/leaderboard');

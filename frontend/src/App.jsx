@@ -6,6 +6,8 @@ import Trade from './pages/Trade';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import './styles/global.css';
+import Leaderboard from './pages/Leaderboard';
+
 
 function App() {
     return (
@@ -19,6 +21,7 @@ function App() {
                         <Route path="/trade/:symbol" element={<Trade />} />
                         <Route path="/login" element={<Login />} />
                         <Route path="/register" element={<Register />} />
+                        <Route path="/leaderboard" element={<Leaderboard />} />
                     </Routes>
                 </main>
             </div>

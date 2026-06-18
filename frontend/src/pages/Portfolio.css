@@ -1,0 +1,99 @@
+.portfolio-page h1 {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 1.5rem;
+}
+
+/* Summary cards */
+.summary-cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+.summary-card { display: flex; flex-direction: column; gap: 6px; }
+.summary-label { font-size: 13px; color: #6e6e73; }
+.summary-value { font-size: 20px; font-weight: 700; }
+.summary-value.up { color: #1a9e3f; }
+.summary-value.down { color: #d93025; }
+
+/* Tabs */
+.portfolio-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 1.25rem;
+    border-bottom: 1px solid #1e1e2e;
+}
+.tab-btn {
+    padding: 10px 18px;
+    background: none;
+    border: none;
+    color: #6e6e73;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    font-family: inherit;
+}
+.tab-btn:hover { color: #e8e8ed; }
+.tab-btn.active { color: #0071e3; border-bottom-color: #0071e3; }
+
+/* Empty state */
+.empty-state {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: #6e6e73;
+}
+.empty-state p { margin-bottom: 1rem; }
+
+/* Tables */
+.holdings-table, .history-table { padding: 0; overflow: hidden; }
+.table-header {
+    display: grid;
+    grid-template-columns: 1fr 0.8fr 1fr 1fr 1fr 1.4fr;
+    padding: 14px 1.5rem;
+    font-size: 12px;
+    color: #6e6e73;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    border-bottom: 1px solid #1e1e2e;
+}
+.history-header { grid-template-columns: 0.8fr 1fr 0.8fr 1fr 1fr 1fr; }
+.table-row {
+    display: grid;
+    grid-template-columns: 1fr 0.8fr 1fr 1fr 1fr 1.4fr;
+    padding: 14px 1.5rem;
+    font-size: 14px;
+    border-bottom: 1px solid #1e1e2e;
+    cursor: pointer;
+    transition: background 0.2s;
+    align-items: center;
+}
+.history-row { grid-template-columns: 0.8fr 1fr 0.8fr 1fr 1fr 1fr; cursor: default; }
+.table-row:last-child { border-bottom: none; }
+.table-row:hover { background: #1a1a24; }
+.row-symbol { font-weight: 700; }
+.up { color: #1a9e3f; }
+.down { color: #d93025; }
+.trade-type {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 980px;
+    width: fit-content;
+}
+.trade-type.buy { background: rgba(26,158,63,0.15); color: #1a9e3f; }
+.trade-type.sell { background: rgba(217,48,37,0.15); color: #d93025; }
+.trade-date { font-size: 13px; color: #6e6e73; }
+
+@media (max-width: 900px) {
+    .summary-cards { grid-template-columns: repeat(2, 1fr); }
+    .table-header { display: none; }
+    .table-row {
+        grid-template-columns: 1fr;
+        gap: 6px;
+        padding: 1rem 1.25rem;
+    }
+}

@@ -55,4 +55,38 @@ public class PortfolioService {
             .map(item -> (BigDecimal) item.get("currentValue"))
             .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
+    
+    public List<Map<String, Object>> getLeaderboard(List<User> allUsers) {
+        List<Map<String, Object>> leaderboard = new ArrayList<>();
+
+        for (User user : allUsers) {
+            BigDecimal portfolioValue = getTotalPortfolioValue(user);
+            BigDecimal netWorth = user.getBalance().add(portfolioValue);
+            BigDecimal startingBalance = new BigDecimal("10000.00");
+            BigDecimal gainLoss = netWorth.subtract(startingBalance);
+            BigDecimal gainLossPercent = gainLoss
+                    .divide(startingBalance, 4, RoundingMode.HALF_UP)
+                    .multiply(new BigDecimal("100"))
+                    .setScale(2, RoundingMode.HALF_UP);
+
+            Map<String, Object> entry = new HashMap<>();
+            entry.put("name", user.getName());
+            entry.put("netWorth", netWorth.setScale(2, RoundingMode.HALF_UP));
+            entry.put("gainLoss", gainLoss.setScale(2, RoundingMode.HALF_UP));
+            entry.put("gainLossPercent", gainLossPercent);
+            leaderboard.add(entry);
+        }
+
+        // Sort by net worth descending
+        leaderboard.sort((a, b)
+                -> ((BigDecimal) b.get("netWorth")).compareTo((BigDecimal) a.get("netWorth"))
+        );
+
+        // Add rank
+        for (int i = 0; i < leaderboard.size(); i++) {
+            leaderboard.get(i).put("rank", i + 1);
+        }
+
+        return leaderboard;
+    }
 }

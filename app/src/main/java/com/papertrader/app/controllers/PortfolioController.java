@@ -3,6 +3,7 @@ package com.papertrader.app.controllers;
 import com.papertrader.app.models.User;
 import com.papertrader.app.services.PortfolioService;
 import com.papertrader.app.services.UserService;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +19,9 @@ public class PortfolioController {
 
     @Autowired
     private UserService userService;
+    
+    @Autowired
+    private com.papertrader.app.repositories.UserRepository userRepository;
 
     @GetMapping
     public ResponseEntity<?> getPortfolio(@RequestParam String email) {
@@ -40,5 +44,11 @@ public class PortfolioController {
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
+    }
+    
+    @GetMapping("/leaderboard")
+    public ResponseEntity<?> getLeaderboard() {
+        List<User> allUsers = userRepository.findAll();
+        return ResponseEntity.ok(portfolioService.getLeaderboard(allUsers));
     }
 }

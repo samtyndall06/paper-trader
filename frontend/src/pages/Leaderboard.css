@@ -1,0 +1,54 @@
+.leaderboard-page h1 {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 4px;
+}
+.leaderboard-subtitle {
+    font-size: 14px;
+    color: #6e6e73;
+    margin-bottom: 1.5rem;
+}
+.leaderboard-table { padding: 0; overflow: hidden; }
+.lb-header {
+    display: grid;
+    grid-template-columns: 80px 1fr 1fr 1.4fr;
+    padding: 14px 1.5rem;
+    font-size: 12px;
+    color: #6e6e73;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    border-bottom: 1px solid #1e1e2e;
+}
+.lb-row {
+    display: grid;
+    grid-template-columns: 80px 1fr 1fr 1.4fr;
+    padding: 16px 1.5rem;
+    font-size: 14px;
+    border-bottom: 1px solid #1e1e2e;
+    align-items: center;
+    transition: background 0.2s;
+}
+.lb-row:last-child { border-bottom: none; }
+.lb-row-you { background: rgba(0, 113, 227, 0.08); }
+.lb-rank { font-size: 18px; font-weight: 700; }
+.lb-name { font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.lb-you-tag {
+    background: #0071e3;
+    color: white;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 980px;
+}
+.lb-networth { font-weight: 600; }
+.lb-gain.up { color: #1a9e3f; }
+.lb-gain.down { color: #d93025; }
+
+@media (max-width: 768px) {
+    .lb-header { display: none; }
+    .lb-row {
+        grid-template-columns: 1fr;
+        gap: 6px;
+    }
+}
