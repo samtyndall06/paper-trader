@@ -2,7 +2,7 @@
 
 A full-stack paper trading web application with real-time stock prices, AI-powered suggestions, and a competitive leaderboard — built with Java Spring Boot, React, and PostgreSQL.
 
-![Dashboard](docs/Dashboard.png)
+![Dashboard](docs/dashboard.png)
 
 ## Overview
 
@@ -42,16 +42,16 @@ papertrader lets users practice stock trading with virtual money. Every account 
 ## Screenshots
 
 ### Dashboard
-![Dashboard](docs/Dashboard.png)
+![Dashboard](docs/dashboard.png)
 
 ### Trade Page
-![Trade](docs/Trade.png)
+![Trade](docs/trade.png)
 
 ### Portfolio
-![Portfolio](docs/Portfolio.png)
+![Portfolio](docs/portfolio.png)
 
 ### Leaderboard
-![Leaderboard](docs/Leaderboard.png)
+![Leaderboard](docs/leaderboard.png)
 
 ## Getting Started
 
