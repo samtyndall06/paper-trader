@@ -2,7 +2,7 @@
 
 A full-stack paper trading web application with real-time stock prices, AI-powered suggestions, and a competitive leaderboard — built with Java Spring Boot, React, and PostgreSQL.
 
-![Dashboard](docs/dashboard.PNG)
+![Dashboard](docs/dashboard.png)
 
 ## Overview
 
